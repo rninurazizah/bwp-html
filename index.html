@@ -858,90 +858,122 @@
             font-size: 13px;
         }
 
-        /* Responsive */
-        @media (max-width: 1400px) {
-            .nav-container,
-            .hero,
-            .news-updates,
-            .case-studies,
-            .about,
-            .services,
-            .team,
-            .clients,
-            .contact,
-            footer {
-                padding-left: 40px;
-                padding-right: 40px;
-            }
+        /* Mobile menu button (hidden on desktop) */
+        .mobile-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            align-items: center;
+            justify-content: center;
+        }
+        .mobile-toggle svg { width: 22px; height: 22px; color: #000; }
+
+        /* Mobile menu layout */
+        .nav-links {
+            display: flex;
+            gap: 35px;
+            list-style: none;
         }
 
-        @media (max-width: 1024px) {
-            .nav-container {
-                padding-left: 160px;
-            }
-            .hero h1 {
-                font-size: 56px;
-            }
-
-            .about-content,
-            .partner-main,
-            .contact-content {
-                grid-template-columns: 1fr;
-            }
-
-            .case-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .services-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .team-structure {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
+        /* Mobile styles */
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
             .nav-container {
-                padding-left: 140px;
-                padding-right: 40px;
-            }
-            .hero h1 {
-                font-size: 42px;
+                padding-left: 16px;
+                padding-right: 16px;
             }
 
-            .services-grid,
-            .team-structure,
-            .form-row {
-                grid-template-columns: 1fr;
+            .logo-image {
+                left: 12px;
+                top: 8px;
+                width: 140px;
+                height: 48px;
             }
 
-            .news-grid {
-                grid-template-columns: 1fr;
+            .nav-links {
+                display: none; /* hide desktop links */
+                position: absolute;
+                top: 64px;
+                right: 16px;
+                left: 16px;
+                flex-direction: column;
+                gap: 0;
+                background: #ffffff;
+                border: 1px solid rgba(0,0,0,0.06);
+                border-radius: 8px;
+                overflow: hidden;
+                z-index: 1200;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             }
 
-            .footer-content {
-                grid-template-columns: 1fr;
+            .nav-links li {
+                border-bottom: 1px solid rgba(0,0,0,0.04);
             }
+
+            .nav-links li:last-child { border-bottom: none; }
+
+            .nav-links a {
+                display: block;
+                padding: 14px 18px;
+                color: #000;
+                font-size: 15px;
+                font-weight: 700;
+                letter-spacing: 0;
+                text-transform: none;
+            }
+
+            .nav-links.mobile-active {
+                display: flex;
+            }
+
+            .mobile-toggle { display: inline-flex; margin-left: 8px; }
+
+            /* Hero adjustments for small screens */
+            .hero {
+                padding: 80px 20px 60px;
+                min-height: 60vh;
+                text-align: center;
+            }
+            .hero-content { align-items: center; margin: 0 auto; }
+            .hero h1 { font-size: 34px; letter-spacing: -1px; }
+            .hero-tagline { font-size: 14px; letter-spacing: 1px; }
+            .hero p { font-size: 15px; max-width: 100%; }
+
+            /* Grid stacks */
+            .case-grid, .services-grid, .team-structure, .news-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .contact-content, .about-content {
+                grid-template-columns: 1fr !important;
+                gap: 32px;
+            }
+
+            footer .footer-content { grid-template-columns: 1fr !important; }
         }
     </style>
-</head>
-<body>
+    </head>
+    <body>
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
             <div class="logo-full">
                 <div class="logo-image">
-                    <img src="assets/logo.png" alt="Balukea Wijaya &amp; Partners Logo" class="logo-image-img">
+                    <img src="/landing-page-html/logo.png" alt="Balukea Wijaya &amp; Partners Logo" class="logo-image-img">
                 </div>
-                
             </div>
-            <ul class="nav-links">
+
+            <!-- mobile toggle button -->
+            <button class="mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
+                <!-- simple hamburger icon -->
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+
+            <ul class="nav-links" id="navLinks">
                 <li><a href="#beranda">Beranda</a></li>
                 <li><a href="#updates">Updates</a></li>
                 <li><a href="#tentang">Tentang</a></li>
@@ -1209,6 +1241,7 @@
             <div class="client-card">DOCTOR VAPOR PALEMBANG</div>
             <div class="client-card">PPPSRS KONDOTEL LE EMINENCE</div>
             <div class="client-card">PPPSRS KONDOTEL BELEVUE</div>
+            <div class="client-card">DAZZ LIVE</div>
         </div>
     </section>
 
@@ -1345,9 +1378,36 @@
             
             lastScroll = currentScroll;
         });
+
+        // Mobile menu toggle
+        (function(){
+            const toggle = document.querySelector('.mobile-toggle');
+            const navLinks = document.getElementById('navLinks');
+            if (!toggle || !navLinks) return;
+
+            toggle.addEventListener('click', () => {
+                const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                toggle.setAttribute('aria-expanded', String(!expanded));
+                navLinks.classList.toggle('mobile-active');
+            });
+
+            // close menu when clicking a link
+            navLinks.querySelectorAll('a').forEach(a => {
+                a.addEventListener('click', () => {
+                    navLinks.classList.remove('mobile-active');
+                    toggle.setAttribute('aria-expanded', 'false');
+                });
+            });
+
+            // close on outside click
+            document.addEventListener('click', (e) => {
+                if (!navLinks.classList.contains('mobile-active')) return;
+                if (!e.target.closest('.nav-container')) {
+                    navLinks.classList.remove('mobile-active');
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+        })();
     </script>
 
-
 </body></html>
-
-
